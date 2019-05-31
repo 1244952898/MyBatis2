@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.AddressMapper">
+  <select id="getEntityById" parameterType="int" resultType="addres">
+SELECT
+  `id`,
+  `user_id`,
+  `province_id`,
+  `city_id`,
+  `town_id`,
+  `mobile`,
+  `address`,
+  `contact`,
+  `is_default`,
+  `notes`,
+  `create_date`,
+  `alias`
+FROM `pinyougoudb`.`tb_address`
+WHERE ID=#{id}
+  </select>
+
+  <insert id="AddEntity" parameterType="TbAddress" useGeneratedKeys="true" keyProperty="id">
+<!--<selectKey keyProperty="id" resultType="Long" order="AFTER" >
+    SELECT LAST_INSERT_ID()
+</selectKey>-->
+    INSERT INTO `pinyougoudb`.`tb_address`
+            (
+             `user_id`,
+             `province_id`,
+             `city_id`,
+             `town_id`,
+             `mobile`,
+             `address`,
+             `contact`,
+             `is_default`,
+             `notes`,
+             `create_date`,
+             `alias`)
+VALUES (
+        #{user_id},
+       #{province_id},
+        #{city_id},
+        #{town_id},
+        #{mobile},
+        #{address},
+        #{contact},
+        #{is_default},
+        #{notes},
+        #{create_date},
+        #{alias});
+  </insert>
+
+</mapper>

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="pojo.TbUser">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="created" jdbcType="TIMESTAMP" property="created"/>
+        <result column="updated" jdbcType="TIMESTAMP" property="updated"/>
+        <result column="source_type" jdbcType="VARCHAR" property="sourceType"/>
+        <result column="nick_name" jdbcType="VARCHAR" property="nickName"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="head_pic" jdbcType="VARCHAR" property="headPic"/>
+        <result column="qq" jdbcType="VARCHAR" property="qq"/>
+        <result column="account_balance" jdbcType="DECIMAL" property="accountBalance"/>
+        <result column="is_mobile_check" jdbcType="VARCHAR" property="isMobileCheck"/>
+        <result column="is_email_check" jdbcType="VARCHAR" property="isEmailCheck"/>
+        <result column="sex" jdbcType="VARCHAR" property="sex"/>
+        <result column="user_level" jdbcType="INTEGER" property="userLevel"/>
+        <result column="points" jdbcType="INTEGER" property="points"/>
+        <result column="experience_value" jdbcType="INTEGER" property="experienceValue"/>
+        <result column="birthday" jdbcType="TIMESTAMP" property="birthday"/>
+        <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime"/>
+    </resultMap>
+    <sql id="colnum">
+              `id`,
+        `username`,
+        `password`,
+        `phone`,
+        `email`,
+        `created`,
+        `updated`,
+        `source_type`,
+        `nick_name`,
+        `name`,
+        `status`,
+        `head_pic`,
+        `experience_value`
+    </sql>
+
+    <select id="getUserById" parameterType="int" resultType="pojo.TbUser">
+SELECT
+  `id`,
+  `username`,
+  `password`,
+  `phone`,
+  `email`,
+  `created`,
+  `updated`,
+  `source_type`,
+  `nick_name`,
+  `name`,
+  `status`,
+  `head_pic`,
+  `qq`,
+  `account_balance`,
+  `is_mobile_check`,
+  `is_email_check`,
+  `sex`,
+  `user_level`,
+  `points`,
+  `experience_value`,
+  `birthday`,
+  `last_login_time`
+FROM `pinyougoudb`.`tb_user`
+WHERE id=#{id}
+  </select>
+
+    <select id="getListByUserName" parameterType="string" resultType="pojo.TbUser">
+  SELECT
+  `id`,
+  `username`,
+  `password`,
+  `phone`,
+  `email`,
+  `created`,
+  `updated`,
+  `source_type`,
+  `nick_name`,
+  `name`,
+  `status`,
+  `head_pic`,
+  `experience_value`
+FROM `pinyougoudb`.`tb_user`
+WHERE username LIKE '%${value}%'
+</select>
+
+    <select id="getListByQueryVo" parameterType="pojo.QueryVo" resultType="pojo.TbUser">
+  SELECT
+  `id`,
+  `username`,
+  `password`,
+  `phone`,
+  `email`,
+  `created`,
+  `updated`,
+  `source_type`,
+  `nick_name`,
+  `name`,
+  `status`,
+  `head_pic`,
+  `experience_value`
+FROM `pinyougoudb`.`tb_user`
+WHERE username LIKE '%${user.username}%' AND `password` LIKE '%${user.password}%' AND `status`=#{user.status}
+</select>
+
+
+    <select id="getListByPojo" parameterType="TbUser" resultType="TbUser">
+        SELECT
+        <include refid="colnum"></include>
+        FROM `pinyougoudb`.`tb_user`
+        <trim prefix="WHERE" prefixOverrides="AND|OR|abc">
+            <if test='username!=null and username!="" and username!="a"'>
+                abc username LIKE '%${username}%'
+            </if>
+            <if test="status!=null and status!=''">
+                and status =#{status}
+            </if>
+            <choose>
+                <when test="id!=null and id>5">
+                    and id>#{id}
+                </when>
+                <when test="phone!=null and phone !=''">
+                    and phone like '%${phone}%'
+                </when>
+                <otherwise>
+                    and username='zhubajie'
+                </otherwise>
+            </choose>
+        </trim>
+
+    </select>
+
+    <select id="getUserByIdList" parameterType="QueryVo" resultType="TbUser">
+        select
+        <include refid="colnum"></include>
+        from `pinyougoudb`.`tb_user`
+        <where>
+            <if test="userIdList!=null"></if>
+            <foreach collection="userIdList" item="item" index="i" open="and id in(" separator="," close=")">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+
+
+    <update id="updateEntityById" parameterType="TbUser">
+        update `pinyougoudb`.`tb_user`
+        <set>
+            <if test="username!=null and username!=''">username=#{username}</if>
+            <if test="nickName!=null and nickName!=''">nick_name=#{nickName}</if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+
+    <select id="getUserAddress" parameterType="int" resultType="UserAddress">
+        SELECT
+        tu.`id`,
+        `username`,
+        `password`,
+        `phone`,
+        `email`,
+        `address`
+        FROM `pinyougoudb`.`tb_user` tu
+        LEFT JOIN `pinyougoudb`.tb_address ta ON tu.`username`=ta.user_id
+        <where>
+            tu.`id`=#{value }
+        </where>
+        limit 1
+    </select>
+
+    <resultMap id="OneToOne" type="User_Address">
+        <id column="id" property="id"></id>
+        <result column="username" property="username"></result>
+        <result column="password" property="password"></result>
+        <association property="address" javaType="TbAddress">
+            <id column="username" property="user_id"></id>
+            <result column="address" property="address"></result>
+            <result column="contact" property="contact"></result>
+        </association>
+    </resultMap>
+    <select id="getOnetoOne" parameterType="int" resultMap="OneToOne">
+        SELECT
+        tu.`id`,
+        `username`,
+        `password`,
+        ta.`address`,
+        ta.`contact`
+        FROM `pinyougoudb`.`tb_user` tu
+        LEFT JOIN `pinyougoudb`.tb_address ta ON tu.`username`=ta.user_id
+        <where>
+            tu.`id`=#{value }
+        </where>
+        limit 1
+    </select>
+
+    <resultMap id="getOneToMore" type="User_Order">
+        <id column="id" property="id"></id>
+        <result property="username" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="phone" column="phone"></result>
+        <collection property="orderList" ofType="TbOrder">
+            <id column="username" property="userId"></id>
+            <result property="orderId" column="order_id"></result>
+            <result property="payment" column="payment"></result>
+            <result property="receiverAreaName" column="receiver_area_name"></result>
+            <result property="receiver" column="receiver"></result>
+        </collection>
+    </resultMap>
+    <select id="getOneToMore" parameterType="QueryVoOnToMore" resultMap="getOneToMore">
+        SELECT
+tu.username,
+tu.password,
+tu.phone,
+tu.created,
+tbo.order_id,
+tbo.payment,
+tbo.receiver_area_name,
+tbo.receiver
+FROM tb_user tu
+LEFT JOIN tb_order tbo ON tu.`username`=tbo.`user_id`
+        <where>
+            tu.`id`>#{userId }
+        </where>
+        <choose>
+            <when test="pageIndex>=0 and pageSize>0">
+                LIMIT #{pageIndex}, #{pageSize};
+            </when>
+            <otherwise>
+                LIMIT 0, 10;
+            </otherwise>
+        </choose>
+
+    </select>
+
+</mapper>
